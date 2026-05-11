@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Activity 7 - Pagination</title>
+    <link rel="icon" href="hoy.jpg" type="image/jpg">
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Cinzel:wght@700&family=Oswald:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --gold: #c9a84c;
+            --dark-gold: #8b6914;
+            --green: #3a5a2a;
+            --dark-green: #1e3318;
+            --brown: #2c1a0e;
+            --light-brown: #5c3d1e;
+            --cream: #d4c5a0;
+            --red: #8b1a1a;
+            --bg-dark: #0d0b08;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Oswald', sans-serif;
+            color: var(--cream);
+            background: var(--bg-dark);
+        }
+
+        /* WALL TEXTURE OVERLAY */
+        body::after {
+            content: '';
+            position: fixed; inset: 0; z-index: -1;
+            background-image:
+                repeating-linear-gradient(0deg, transparent, transparent 40px, rgba(201,168,76,0.03) 40px, rgba(201,168,76,0.03) 41px),
+                repeating-linear-gradient(90deg, transparent, transparent 40px, rgba(201,168,76,0.03) 40px, rgba(201,168,76,0.03) 41px);
+            pointer-events: none;
+        }
+
+        /* NAV */
+        nav {
+            position: sticky; top: 0; z-index: 999;
+            background: rgba(13,11,8,0.96); backdrop-filter: blur(10px);
+            display: flex; gap: 6px; padding: 12px 20px;
+            flex-wrap: wrap;
+            border-bottom: 2px solid var(--gold);
+            box-shadow: 0 2px 20px rgba(201,168,76,0.15);
+        }
+        nav::before {
+            content: '⚔';
+            color: var(--gold);
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            margin-right: 6px;
+        }
+        nav a {
+            color: var(--gold); text-decoration: none; font-size: 13px;
+            font-weight: bold; padding: 6px 16px;
+            border: 1px solid rgba(201,168,76,0.4); border-radius: 4px;
+            letter-spacing: 1px; text-transform: uppercase;
+            transition: background 0.3s, color 0.3s, box-shadow 0.3s;
+            font-family: 'Oswald', sans-serif;
+        }
+        nav a:hover {
+            background: var(--gold); color: var(--bg-dark);
+            box-shadow: 0 0 12px rgba(201,168,76,0.5);
+        }
+
+        /* LOGIN GATE */
+        #login-screen {
+            position: fixed; inset: 0; z-index: 9999;
+            background: linear-gradient(160deg, #0d0b08 0%, #1a1005 50%, #0d1a0a 100%);
+            display: flex; align-items: center; justify-content: center;
+        }
+        #login-screen::before {
+            content: '';
+            position: absolute; inset: 0;
+            background:
+                radial-gradient(ellipse at 20% 50%, rgba(58,90,42,0.15) 0%, transparent 60%),
+                radial-gradient(ellipse at 80% 50%, rgba(139,26,26,0.1) 0%, transparent 60%);
+            pointer-events: none;
+        }
+        #main-content { display: none; }
+        .login-box {
+            position: relative;
+            background: rgba(20,15,8,0.9);
+            border: 1px solid rgba(201,168,76,0.4);
+            border-radius: 4px; padding: 44px; width: 380px;
+            text-align: center;
+            box-shadow: 0 0 40px rgba(201,168,76,0.1), inset 0 0 60px rgba(0,0,0,0.5);
+        }
+        .login-box::before {
+            content: '— SURVEY CORPS —';
+            display: block;
+            font-size: 10px; letter-spacing: 4px; color: rgba(201,168,76,0.5);
+            margin-bottom: 20px; font-family: 'Oswald', sans-serif;
+        }
+        .login-box h1 {
+            font-family: 'Bebas Neue', cursive;
+            font-size: 32px; margin-bottom: 6px;
+            color: var(--gold);
+            text-shadow: 0 0 20px rgba(201,168,76,0.4);
+            letter-spacing: 3px;
+        }
+        .login-box p { color: #888; font-size: 13px; margin-bottom: 28px; letter-spacing: 1px; }
+        .login-box input {
+            width: 100%; padding: 12px 16px; margin-bottom: 14px;
+            border-radius: 3px; border: 1px solid rgba(201,168,76,0.3);
+            background: rgba(255,255,255,0.04); color: var(--cream);
+            font-size: 14px; outline: none; transition: border 0.3s, box-shadow 0.3s;
+            font-family: 'Oswald', sans-serif; letter-spacing: 1px;
+        }
+        .login-box input:focus {
+            border-color: var(--gold);
+            box-shadow: 0 0 10px rgba(201,168,76,0.2);
+        }
+        .login-box input::placeholder { color: #555; }
+        .login-box button {
+            width: 100%; padding: 13px;
+            background: linear-gradient(135deg, var(--green), var(--dark-green));
+            color: var(--gold); font-weight: bold; font-size: 14px;
+            border: 1px solid var(--gold); border-radius: 3px; cursor: pointer;
+            letter-spacing: 3px; text-transform: uppercase;
+            font-family: 'Oswald', sans-serif;
+            transition: background 0.3s, box-shadow 0.3s;
+        }
+        .login-box button:hover {
+            background: linear-gradient(135deg, #4a7a3a, var(--green));
+            box-shadow: 0 0 20px rgba(58,90,42,0.6);
+        }
+        .login-box .link { margin-top: 18px; font-size: 12px; color: #666; letter-spacing: 1px; }
+        .login-box .link a { color: var(--gold); text-decoration: none; }
+        .error-msg { color: #cc4444; font-size: 13px; margin-bottom: 10px; display: none; letter-spacing: 1px; }
+
+        /* ALL PAGES HIDDEN BY DEFAULT */
+        .page { display: none; }
+
+        /* PAGE 1 - HERO */
+        #page1 {
+            min-height: 100vh;
+            background:
+                linear-gradient(180deg, rgba(13,11,8,0.7) 0%, rgba(13,26,10,0.5) 50%, rgba(13,11,8,0.9) 100%),
+                url('https://i.imgur.com/placeholder.jpg') center/cover no-repeat;
+            background-color: #0d1a0a;
+            align-items: center; justify-content: center;
+            text-align: center; position: relative; overflow: hidden;
+        }
+        #page1::before {
+            content: '';
+            position: absolute; inset: 0;
+            background:
+                radial-gradient(ellipse at 50% 40%, rgba(58,90,42,0.2) 0%, transparent 60%),
+                radial-gradient(ellipse at 50% 80%, rgba(201,168,76,0.05) 0%, transparent 50%);
+            pointer-events: none;
+        }
+        /* Animated titan silhouette lines */
+        #page1::after {
+            content: '';
+            position: absolute; bottom: 80px; left: 0; right: 0; height: 2px;
+            background: linear-gradient(90deg, transparent, rgba(201,168,76,0.3), transparent);
+            animation: scanline 4s ease-in-out infinite;
+        }
+        @keyframes scanline {
+            0%, 100% { opacity: 0; transform: scaleX(0.3); }
+            50% { opacity: 1; transform: scaleX(1); }
+        }
+        .hero { position: relative; max-width: 800px; padding: 60px 20px; }
+        .hero-tag {
+            font-size: 11px; letter-spacing: 6px; color: var(--gold);
+            text-transform: uppercase; margin-bottom: 20px;
+            font-family: 'Oswald', sans-serif;
+        }
+        .hero-wings {
+            font-size: 48px; margin-bottom: 10px;
+            filter: drop-shadow(0 0 10px rgba(201,168,76,0.5));
+            animation: float 3s ease-in-out infinite;
+        }
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-8px); }
+        }
+        .hero-title {
+            font-family: 'Bebas Neue', cursive;
+            font-size: clamp(48px, 8vw, 96px);
+            font-weight: 400; line-height: 1;
+            margin-bottom: 24px;
+            text-shadow: 0 0 60px rgba(201,168,76,0.3), 0 4px 20px rgba(0,0,0,0.8);
+            letter-spacing: 4px;
+        }
+        .hero-title span { color: var(--gold); }
+        .hero-title .red { color: var(--red); }
+        .hero-sub {
+            font-size: 15px; color: #a09070; line-height: 1.8;
+            margin-bottom: 40px; max-width: 560px; margin-left: auto; margin-right: auto;
+            letter-spacing: 0.5px;
+        }
+        .hero-btns { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; }
+        .btn-primary {
+            padding: 14px 36px;
+            background: linear-gradient(135deg, var(--green), var(--dark-green));
+            color: var(--gold); font-weight: bold; font-size: 13px;
+            border: 1px solid var(--gold); border-radius: 3px; cursor: pointer;
+            letter-spacing: 3px; text-transform: uppercase;
+            font-family: 'Oswald', sans-serif;
+            transition: all 0.3s;
+        }
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #4a7a3a, var(--green));
+            box-shadow: 0 0 24px rgba(58,90,42,0.7);
+        }
+        .btn-outline {
+            padding: 14px 36px; background: transparent;
+            color: var(--gold); font-weight: bold; font-size: 13px;
+            border: 1px solid rgba(201,168,76,0.6); border-radius: 3px; cursor: pointer;
+            letter-spacing: 3px; text-transform: uppercase;
+            font-family: 'Oswald', sans-serif;
+            transition: all 0.3s;
+        }
+        .btn-outline:hover {
+            background: rgba(201,168,76,0.1);
+            border-color: var(--gold);
+            box-shadow: 0 0 16px rgba(201,168,76,0.3);
+        }
+        .hero-quote {
+            margin-top: 40px; font-size: 13px; color: #665544;
+            font-style: italic; letter-spacing: 1px;
+            border-top: 1px solid rgba(201,168,76,0.15);
+            padding-top: 20px;
+        }
+
+        /* PAGE 2 - ACT 4 */
+        #page2 {
+            min-height: 100vh;
+            background: url('hoy.jpg') no-repeat center center / cover;
+            position: relative; padding: 60px 40px;
+        }
+        #page2::before {
+            content: ''; position: absolute; inset: 0;
+            background: rgba(8,6,4,0.75);
+            pointer-events: none;
+        }
+        #page2 .playlist-bar, #page2 .audio-box { position: relative; }
+        .playlist-bar {
+            overflow: hidden; white-space: nowrap; padding: 14px 0; margin-bottom: 40px;
+            border-top: 1px solid rgba(201,168,76,0.3);
+            border-bottom: 1px solid rgba(201,168,76,0.3);
+        }
+        .scroll-text {
+            display: inline-block; color: var(--gold); font-size: 16px;
+            font-weight: bold; padding-left: 100%;
+            animation: scrolling 22s linear infinite;
+            text-shadow: 0 0 8px rgba(201,168,76,0.6);
+            letter-spacing: 2px; text-transform: uppercase;
+            font-family: 'Oswald', sans-serif;
+        }
+        @keyframes scrolling { 0% { transform: translateX(0%); } 100% { transform: translateX(-100%); } }
+        .audio-box { text-align: center; }
+        .soft2-title {
+            font-family: 'Bebas Neue', cursive;
+            font-size: 42px; color: var(--cream); margin-bottom: 8px;
+            letter-spacing: 4px;
+            transition: color 0.3s; cursor: default;
+        }
+        .soft2-title:hover { color: var(--gold); }
+        .audio-subtitle {
+            font-size: 12px; letter-spacing: 4px; color: rgba(201,168,76,0.6);
+            text-transform: uppercase; margin-bottom: 24px;
+        }
+        audio {
+            filter: sepia(0.3) hue-rotate(20deg);
+            border-radius: 4px;
+        }
+        .gif-row { display: flex; align-items: center; justify-content: center; gap: 20px; margin-top: 24px; }
+        .gif { width: 44px; height: 44px; border-radius: 50%; border: 1px solid rgba(201,168,76,0.4); }
+        .gif-label {
+            color: var(--cream); font-size: 16px; font-weight: bold;
+            letter-spacing: 2px; font-family: 'Oswald', sans-serif;
+        }
+
+        /* PAGE 3 - ACT 2 */
+        #page3 {
+            min-height: 100vh;
+            background: linear-gradient(180deg, #0d0b08 0%, #111008 100%);
+            padding: 60px 40px;
+        }
+        .section-title {
+            font-family: 'Bebas Neue', cursive;
+            font-size: 11px; letter-spacing: 5px; color: rgba(201,168,76,0.5);
+            text-transform: uppercase; margin-bottom: 10px;
+        }
+        .section-heading {
+            font-family: 'Bebas Neue', cursive;
+            font-size: 36px; color: var(--cream); letter-spacing: 3px;
+            margin-bottom: 36px;
+            border-left: 3px solid var(--gold); padding-left: 16px;
+        }
+        .btn-grid { display: flex; flex-wrap: wrap; gap: 14px; }
+        .uberbutton { background-color: #000; border: 1px solid #333; color: white; padding: 15px 32px; font-size: 15px; cursor: pointer; font-family: 'Oswald', sans-serif; letter-spacing: 1px; }
+        .amazonbutton { background-color: rgb(255,216,20); border: none; color: #000; padding: 15px 32px; font-size: 15px; width: 200px; border-radius: 49px; cursor: pointer; font-family: 'Oswald', sans-serif; font-weight: bold; }
+        .githubbutton { background-color: rgb(46,164,79); border: none; color: white; padding: 15px 32px; font-size: 15px; border-radius: 8px; font-weight: bold; cursor: pointer; font-family: 'Oswald', sans-serif; letter-spacing: 1px; }
+        .bootstrapbutton { background-color: rgb(121,82,179); border: none; color: white; padding: 15px 32px; font-size: 15px; font-weight: bold; border-radius: 8px; cursor: pointer; font-family: 'Oswald', sans-serif; letter-spacing: 1px; }
+        .bootstrap2button { background-color: white; border: 1px solid rgb(108,117,125); color: rgb(108,117,125); padding: 15px 32px; font-size: 15px; font-weight: bold; border-radius: 8px; cursor: pointer; font-family: 'Oswald', sans-serif; }
+        .linkedinbutton { background-color: rgb(10,102,194); border: none; color: white; padding: 15px 32px; font-size: 15px; font-weight: bold; border-radius: 49px; cursor: pointer; font-family: 'Oswald', sans-serif; letter-spacing: 1px; }
+        .linkedin2button { background-color: white; border: 1px solid rgb(10,102,194); color: rgb(10,102,194); padding: 15px 32px; font-size: 15px; font-weight: bold; border-radius: 49px; cursor: pointer; font-family: 'Oswald', sans-serif; }
+
+        /* PAGE 4 - ACT 3 */
+        #page4 {
+            min-height: 100vh;
+            background: linear-gradient(180deg, #0d1a0a 0%, #0d0b08 100%);
+            padding: 60px 40px;
+        }
+        #page4 .section-heading { color: var(--gold); border-color: var(--green); }
+        #page4 .uberbutton:hover { background-color: rgba(0,0,0,0.6); border-color: #666; transition: all 0.4s ease; }
+        #page4 .amazonbutton:hover { background-color: rgb(207,178,31); box-shadow: 0 4px 16px rgba(255,216,20,0.4); transition: all 0.4s ease; }
+        #page4 .githubbutton:hover { box-shadow: 0 4px 20px rgba(46,164,79,0.5); transform: translateY(-2px); transition: all 0.4s ease; }
+        #page4 .bootstrapbutton:hover { background-color: rgb(75,44,124); box-shadow: 0 4px 20px rgba(121,82,179,0.5); transition: all 0.4s ease; }
+        #page4 .bootstrap2button:hover { background-color: rgb(108,117,125); color: white; transition: all 0.4s ease; }
+        #page4 .linkedinbutton:hover { background-color: rgb(19,82,146); box-shadow: 0 4px 16px rgba(10,102,194,0.5); transition: all 0.4s ease; }
+        #page4 .linkedin2button:hover { background-color: rgb(76,159,243); border: 2px solid rgb(10,102,194); color: white; transition: all 0.3s ease; }
+
+        /* DIVIDER */
+        .aot-divider {
+            display: flex; align-items: center; gap: 16px;
+            margin: 40px 0 30px;
+        }
+        .aot-divider::before, .aot-divider::after {
+            content: ''; flex: 1;
+            height: 1px; background: linear-gradient(90deg, transparent, rgba(201,168,76,0.4), transparent);
+        }
+        .aot-divider span { color: var(--gold); font-size: 18px; }
+
+        /* PAGINATION BAR */
+        .pagination-bar {
+            position: fixed; bottom: 0; left: 0; right: 0;
+            background: rgba(10,8,5,0.97); backdrop-filter: blur(10px);
+            border-top: 2px solid rgba(201,168,76,0.4);
+            display: flex; align-items: center; justify-content: center;
+            gap: 8px; padding: 12px;
+            box-shadow: 0 -4px 20px rgba(0,0,0,0.5);
+        }
+        .page-btn {
+            width: 44px; height: 44px; background: transparent;
+            border: 1px solid rgba(201,168,76,0.35); color: var(--gold);
+            font-size: 13px; font-weight: bold; border-radius: 3px;
+            cursor: pointer; letter-spacing: 1px;
+            font-family: 'Oswald', sans-serif;
+            transition: background 0.3s, color 0.3s, box-shadow 0.3s;
+        }
+        .page-btn:hover, .page-btn.active {
+            background: var(--gold); color: var(--bg-dark);
+            box-shadow: 0 0 16px rgba(201,168,76,0.5);
+        }
+        .page-btn.prev-next { width: auto; padding: 0 18px; font-size: 12px; letter-spacing: 2px; }
+    </style>
+</head>
+<body>
+
+<!-- LOGIN GATE -->
+<div id="login-screen">
+    <div class="login-box">
+        <h1>⚔ TITANS AWAIT ⚔</h1>
+        <p>Identify yourself, soldier</p>
+        <div class="error-msg" id="error-msg">All fields required, soldier.</div>
+        <input type="text" id="username" placeholder="Username or Email">
+        <input type="password" id="password" placeholder="Password">
+        <button onclick="doLogin()">ADVANCE — SHINZOU WO SASAGEYO</button>
+        <div class="link">New recruit? <a href="#">Enlist here</a></div>
+    </div>
+</div>
+
+<!-- MAIN CONTENT -->
+<div id="main-content">
+
+<nav>
+    <a href="#" onclick="goTo(1);return false;">⚔ Act 5 — Hero</a>
+    <a href="#" onclick="goTo(2);return false;">🎵 Act 4 — Audio</a>
+    <a href="#" onclick="goTo(3);return false;">🛡 Act 2 — CSS Basic</a>
+    <a href="#" onclick="goTo(4);return false;">💥 Act 3 — Hover & Shadow</a>
+</nav>
+
+<!-- PAGE 1: ACT 5 HERO -->
+<div class="page" id="page1">
+    <div class="hero">
+        <p class="hero-tag">✦ Survey Corps — Beyond the Walls ✦</p>
+        <div class="hero-wings">🦅</div>
+        <h1 class="hero-title">
+            Dedicate Your <span>Heart</span><br>
+            Fight the <span class="red">Titans</span>
+        </h1>
+        <p class="hero-sub">
+            Beyond the walls lies a world of terror and wonder. The Survey Corps charges forward — not because victory is certain, but because humanity demands it. Shinzou wo Sasageyo.
+        </p>
+        <div class="hero-btns">
+            <button class="btn-primary">⚔ ADVANCE NOW</button>
+            <button class="btn-outline">EXPLORE THE WALLS</button>
+        </div>
+        <p class="hero-quote">"If you win, you live. If you lose, you die. If you don't fight, you can't win." — Eren Yeager</p>
+    </div>
+</div>
+
+<!-- PAGE 2: ACT 4 AUDIO -->
+<div class="page" id="page2">
+    <div class="playlist-bar">
+        <div class="scroll-text">⚔ Hiroyuki Sawano “Attack on Titan” &nbsp;•&nbsp; AOT Album &nbsp;•&nbsp; Survey Corps Radio &nbsp;•&nbsp; Beyond the Walls ⚔</div> 
+    </div> <div class="audio-box">
+         <h2 class="soft2-title">AOT ALBUM</h2> 
+         <p class="audio-subtitle">— Survey Corps Radio —</p> 
+         <audio controls>
+             <source src="armin.mp3" type="audio/mpeg">
+             </audio>
+              <div class="gif-row"> <img class="gif" src="ABSLALA.gif" alt="ABSLALA gif">
+                 <span class="gif-label">ATTACK ON TITAN</span>
+                  <img class="gif" src="ABSLALA.gif" alt="ABSLALA gif"> 
+                </div>
+             </div> 
+            </div>
+
+<!-- PAGE 3: ACT 2 CSS BASIC -->
+<div class="page" id="page3">
+    <p class="section-title">// ACT 2 — CSS BASIC</p>
+    <h2 class="section-heading">Button Styles</h2>
+    <div class="btn-grid">
+        <button class="uberbutton">Request now</button>
+        <button class="amazonbutton">Add to cart</button>
+        <button class="githubbutton">Sign up</button>
+        <button class="bootstrapbutton">Get started</button>
+        <button class="bootstrap2button">Download</button>
+        <button class="linkedinbutton">Apply on company website</button>
+        <button class="linkedin2button">Save</button>
+    </div>
+    <div class="aot-divider"><span>⚔</span></div>
+</div>
+
+<!-- PAGE 4: ACT 3 HOVER SHADOW TRANSITION -->
+<div class="page" id="page4">
+    <p class="section-title">// ACT 3 — HOVER & SHADOW</p>
+    <h2 class="section-heading">Interactive Buttons</h2>
+    <div class="btn-grid">
+        <button class="uberbutton">Request now</button>
+        <button class="amazonbutton">Add to cart</button>
+        <button class="githubbutton">Sign up</button>
+        <button class="bootstrapbutton">Get started</button>
+        <button class="bootstrap2button">Download</button>
+        <button class="linkedinbutton">Apply on company website</button>
+        <button class="linkedin2button">Save</button>
+    </div>
+    <div class="aot-divider"><span>🛡</span></div>
+</div>
+
+<!-- PAGINATION BAR -->
+<div class="pagination-bar">
+    <button class="page-btn prev-next" onclick="changePage(-1)">&#8592; PREV</button>
+    <button class="page-btn" id="p1" onclick="goTo(1)">1</button>
+    <button class="page-btn" id="p2" onclick="goTo(2)">2</button>
+    <button class="page-btn" id="p3" onclick="goTo(3)">3</button>
+    <button class="page-btn" id="p4" onclick="goTo(4)">4</button>
+    <button class="page-btn prev-next" onclick="changePage(1)">NEXT &#8594;</button>
+</div>
+
+</div>
+
+<script>
+    function doLogin() {
+        const u = document.getElementById('username').value.trim();
+        const p = document.getElementById('password').value.trim();
+        if (!u || !p) { document.getElementById('error-msg').style.display = 'block'; return; }
+        document.getElementById('login-screen').style.display = 'none';
+        document.getElementById('main-content').style.display = 'block';
+        goTo(1);
+    }
+
+    let current = 0;
+
+    function goTo(n) {
+        if (current !== 0) {
+            document.getElementById('page' + current).style.display = 'none';
+            document.getElementById('p' + current).classList.remove('active');
+        }
+        current = n;
+        document.getElementById('p' + current).classList.add('active');
+        document.getElementById('page' + current).style.display = (n === 1) ? 'flex' : 'block';
+        window.scrollTo(0, 0);
+    }
+
+    function changePage(dir) {
+        let next = current + dir;
+        if (next < 1 || next > 4) return;
+        goTo(next);
+    }
+</script>
+
+</body>
+</html>

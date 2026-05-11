@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Activity 5 - Hero</title>
+    <link rel="icon" href="hoy.jpg" type="image/jpg">
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Cinzel:wght@700&family=Oswald:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --gold: #c9a84c;
+            --dark-gold: #8b6914;
+            --green: #3a5a2a;
+            --dark-green: #1e3318;
+            --brown: #2c1a0e;
+            --light-brown: #5c3d1e;
+            --cream: #d4c5a0;
+            --red: #8b1a1a;
+            --bg-dark: #0d0b08;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Oswald', sans-serif;
+            color: var(--cream);
+            background: var(--bg-dark);
+            min-height: 100vh;
+        }
+
+        /* WALL TEXTURE OVERLAY */
+        body::after {
+            content: '';
+            position: fixed; inset: 0; z-index: -1;
+            background-image:
+                repeating-linear-gradient(0deg, transparent, transparent 40px, rgba(201,168,76,0.03) 40px, rgba(201,168,76,0.03) 41px),
+                repeating-linear-gradient(90deg, transparent, transparent 40px, rgba(201,168,76,0.03) 40px, rgba(201,168,76,0.03) 41px);
+            pointer-events: none;
+        }
+
+        /* NAV */
+        nav {
+            position: sticky; top: 0; z-index: 999;
+            background: rgba(13,11,8,0.96); backdrop-filter: blur(10px);
+            display: flex; gap: 6px; padding: 12px 20px;
+            flex-wrap: wrap;
+            border-bottom: 2px solid var(--gold);
+            box-shadow: 0 2px 20px rgba(201,168,76,0.15);
+        }
+        nav::before {
+            content: '⚔';
+            color: var(--gold);
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            margin-right: 6px;
+        }
+        nav a {
+            color: var(--gold); text-decoration: none; font-size: 13px;
+            font-weight: bold; padding: 6px 16px;
+            border: 1px solid rgba(201,168,76,0.4); border-radius: 4px;
+            letter-spacing: 1px; text-transform: uppercase;
+            transition: background 0.3s, color 0.3s, box-shadow 0.3s;
+            font-family: 'Oswald', sans-serif;
+        }
+        nav a:hover {
+            background: var(--gold); color: var(--bg-dark);
+            box-shadow: 0 0 12px rgba(201,168,76,0.5);
+        }
+
+        /* HERO SECTION */
+        .hero-section {
+            min-height: 100vh;
+            background:
+                linear-gradient(180deg, rgba(13,11,8,0.7) 0%, rgba(13,26,10,0.5) 50%, rgba(13,11,8,0.9) 100%),
+                url('https://i.imgur.com/placeholder.jpg') center/cover no-repeat;
+            background-color: #0d1a0a;
+            display: flex; align-items: center; justify-content: center;
+            text-align: center; position: relative; overflow: hidden;
+        }
+        .hero-section::before {
+            content: '';
+            position: absolute; inset: 0;
+            background:
+                radial-gradient(ellipse at 50% 40%, rgba(58,90,42,0.2) 0%, transparent 60%),
+                radial-gradient(ellipse at 50% 80%, rgba(201,168,76,0.05) 0%, transparent 50%);
+            pointer-events: none;
+        }
+        /* Animated titan silhouette lines */
+        .hero-section::after {
+            content: '';
+            position: absolute; bottom: 80px; left: 0; right: 0; height: 2px;
+            background: linear-gradient(90deg, transparent, rgba(201,168,76,0.3), transparent);
+            animation: scanline 4s ease-in-out infinite;
+        }
+        @keyframes scanline {
+            0%, 100% { opacity: 0; transform: scaleX(0.3); }
+            50% { opacity: 1; transform: scaleX(1); }
+        }
+        .hero {
+            position: relative; max-width: 800px; padding: 60px 20px;
+        }
+        .hero-tag {
+            font-size: 11px; letter-spacing: 6px; color: var(--gold);
+            text-transform: uppercase; margin-bottom: 20px;
+            font-family: 'Oswald', sans-serif;
+        }
+        .hero-wings {
+            font-size: 48px; margin-bottom: 10px;
+            filter: drop-shadow(0 0 10px rgba(201,168,76,0.5));
+            animation: float 3s ease-in-out infinite;
+        }
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-8px); }
+        }
+        .hero-title {
+            font-family: 'Bebas Neue', cursive;
+            font-size: clamp(48px, 8vw, 96px);
+            font-weight: 400; line-height: 1;
+            margin-bottom: 24px;
+            text-shadow: 0 0 60px rgba(201,168,76,0.3), 0 4px 20px rgba(0,0,0,0.8);
+            letter-spacing: 4px;
+        }
+        .hero-title span { color: var(--gold); }
+        .hero-title .red { color: var(--red); }
+        .hero-sub {
+            font-size: 15px; color: #a09070; line-height: 1.8;
+            margin-bottom: 40px; max-width: 560px; margin-left: auto; margin-right: auto;
+            letter-spacing: 0.5px;
+        }
+        .hero-btns { 
+            display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; 
+        }
+        .btn-primary {
+            padding: 14px 36px;
+            background: linear-gradient(135deg, var(--green), var(--dark-green));
+            color: var(--gold); font-weight: bold; font-size: 13px;
+            border: 1px solid var(--gold); border-radius: 3px; cursor: pointer;
+            letter-spacing: 3px; text-transform: uppercase;
+            font-family: 'Oswald', sans-serif;
+            transition: all 0.3s;
+        }
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #4a7a3a, var(--green));
+            box-shadow: 0 0 24px rgba(58,90,42,0.7);
+        }
+        .btn-outline {
+            padding: 14px 36px; background: transparent;
+            color: var(--gold); font-weight: bold; font-size: 13px;
+            border: 1px solid rgba(201,168,76,0.6); border-radius: 3px; cursor: pointer;
+            letter-spacing: 3px; text-transform: uppercase;
+            font-family: 'Oswald', sans-serif;
+            transition: all 0.3s;
+        }
+        .btn-outline:hover {
+            background: rgba(201,168,76,0.1);
+            border-color: var(--gold);
+            box-shadow: 0 0 16px rgba(201,168,76,0.3);
+        }
+        .hero-quote {
+            margin-top: 40px; font-size: 13px; color: #665544;
+            font-style: italic; letter-spacing: 1px;
+            border-top: 1px solid rgba(201,168,76,0.15);
+            padding-top: 20px;
+        }
+    </style>
+</head>
+<body>
+
+<nav>
+    <a href="#hero">⚔ Act 5 — Hero</a>
+</nav>
+
+<div class="hero-section" id="hero">
+    <div class="hero">
+        <p class="hero-tag">✦ Survey Corps — Beyond the Walls ✦</p>
+        <div class="hero-wings">🦅</div>
+        <h1 class="hero-title">
+            Dedicate Your <span>Heart</span><br>
+            Fight the <span class="red">Titans</span>
+        </h1>
+        <p class="hero-sub">
+            Beyond the walls lies a world of terror and wonder. The Survey Corps charges forward — not because victory is certain, but because humanity demands it. Shinzou wo Sasageyo.
+        </p>
+        <div class="hero-btns">
+            <button class="btn-primary">⚔ ADVANCE NOW</button>
+            <button class="btn-outline">EXPLORE THE WALLS</button>
+        </div>
+        <p class="hero-quote">"If you win, you live. If you lose, you die. If you don't fight, you can't win." — Eren Yeager</p>
+    </div>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Activity 6 - Login</title>
+     <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Oswald:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --gold: #c9a84c;
+            --dark-gold: #8b6914;
+            --green: #3a5a2a;
+            --dark-green: #1e3318;
+            --cream: #d4c5a0;
+            --red: #8b1a1a;
+            --bg-dark: #0d0b08;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Bebas Neue', cursive;
+            color: var(--cream);
+            background: var(--bg-dark);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* WALL TEXTURE OVERLAY */
+        body::after {
+            content: '';
+            position: fixed; inset: 0; z-index: -1;
+            background-image:
+                repeating-linear-gradient(0deg, transparent, transparent 40px, rgba(201,168,76,0.03) 40px, rgba(201,168,76,0.03) 41px),
+                repeating-linear-gradient(90deg, transparent, transparent 40px, rgba(201,168,76,0.03) 40px, rgba(201,168,76,0.03) 41px);
+            pointer-events: none;
+        }
+
+        /* BACKGROUND GRADIENT */
+        body::before {
+            content: '';
+            position: fixed; inset: 0; z-index: -2;
+            background: linear-gradient(160deg, #0d0b08 0%, #1a1005 50%, #0d1a0a 100%);
+        }
+
+        /* SURVEY CORPS OVERLAY */
+        body > div::before {
+            content: '';
+            position: absolute; inset: 0;
+            background:
+                radial-gradient(ellipse at 20% 50%, rgba(58,90,42,0.15) 0%, transparent 60%),
+                radial-gradient(ellipse at 80% 50%, rgba(139,26,26,0.1) 0%, transparent 60%);
+            pointer-events: none;
+        }
+
+        /* LOGIN BOX */
+        .login-box {
+            position: relative;
+            background: rgba(20,15,8,0.9);
+            border: 1px solid rgba(201,168,76,0.4);
+            border-radius: 4px; 
+            padding: 44px; 
+            width: 380px;
+            max-width: 90vw;
+            text-align: center;
+            box-shadow: 0 0 40px rgba(201,168,76,0.1), inset 0 0 60px rgba(0,0,0,0.5);
+            animation: fadeInUp 1s ease-out;
+        }
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .login-box::before {
+            content: '— SURVEY CORPS —';
+            display: block;
+            font-size: 10px; letter-spacing: 4px; color: rgba(201,168,76,0.5);
+            margin-bottom: 20px; font-family: 'Oswald', sans-serif;
+            text-transform: uppercase;
+        }
+        .login-box h1 {
+            font-family: 'Bebas Neue', cursive;
+            font-size: clamp(18px, 6vw, 38px); margin-bottom: 6px;
+            color: var(--gold);
+            text-shadow: 0 0 20px rgba(201,168,76,0.4);
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            white-space: nowrap;
+        }
+        .login-box p { 
+            color: #888; 
+            font-size: 13px; 
+            margin-bottom: 28px; 
+            letter-spacing: 1px; 
+        }
+        .login-box input {
+            width: 100%; 
+            padding: 12px 16px; 
+            margin-bottom: 14px;
+            border-radius: 3px; 
+            border: 1px solid rgba(201,168,76,0.3);
+            background: rgba(255,255,255,0.04); 
+            color: var(--cream);
+            font-size: 14px; 
+            outline: none; 
+            transition: border 0.3s, box-shadow 0.3s;
+            font-family: 'Oswald', sans-serif; 
+            letter-spacing: 1px;
+        }
+        .login-box input:focus {
+            border-color: var(--gold);
+            box-shadow: 0 0 10px rgba(201,168,76,0.2);
+        }
+        .login-box input::placeholder { 
+            color: #555; 
+        }
+        .login-box button {
+            width: 100%; 
+            padding: 13px;
+            background: linear-gradient(135deg, var(--green), var(--dark-green));
+            color: var(--gold); 
+            font-weight: bold; 
+            font-size: 14px;
+            border: 1px solid var(--gold); 
+            border-radius: 3px; 
+            cursor: pointer;
+            letter-spacing: 3px; 
+            text-transform: uppercase;
+            font-family: 'Oswald', sans-serif;
+            transition: background 0.3s, box-shadow 0.3s;
+        }
+        .login-box button:hover {
+            background: linear-gradient(135deg, #4a7a3a, var(--green));
+            box-shadow: 0 0 20px rgba(58,90,42,0.6);
+        }
+        .login-box button:active {
+            transform: scale(0.98);
+        }
+        .login-box .link { 
+            margin-top: 18px; 
+            font-size: 12px; 
+            color: #666; 
+            letter-spacing: 1px; 
+        }
+        .login-box .link a { 
+            color: var(--gold); 
+            text-decoration: none; 
+        }
+        .login-box .link a:hover {
+            text-decoration: underline;
+        }
+        .error-msg { 
+            color: #cc4444; 
+            font-size: 13px; 
+            margin-bottom: 10px; 
+            display: none; 
+            letter-spacing: 1px;
+        }
+        .error-msg.shake {
+            animation: shake 0.5s ease-in-out;
+        }
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+        .success-screen {
+            display: none;
+            text-align: center;
+            padding: 44px;
+            background: rgba(20,15,8,0.9);
+            border: 1px solid rgba(201,168,76,0.4);
+            border-radius: 4px;
+            width: 380px;
+            max-width: 90vw;
+            box-shadow: 0 0 40px rgba(201,168,76,0.1);
+        }
+        .success-screen h1 {
+            color: var(--green);
+            font-family: 'Bebas Neue', cursive;
+            font-size: 28px;
+            margin-bottom: 20px;
+            letter-spacing: 2px;
+        }
+        .success-screen p {
+            color: var(--gold);
+            font-size: 14px;
+            margin-bottom: 30px;
+        }
+        .success-btn {
+            background: linear-gradient(135deg, var(--gold), var(--dark-gold));
+            color: var(--bg-dark);
+            border: none;
+            padding: 12px 30px;
+            font-size: 13px;
+            font-weight: bold;
+            border-radius: 3px;
+            cursor: pointer;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            font-family: 'Oswald', sans-serif;
+            transition: all 0.3s;
+        }
+        .success-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(201,168,76,0.4);
+        }
+    </style>
+</head>
+<body>
+
+<div class="login-container" style="position:relative;">
+    <!-- LOGIN SCREEN -->
+    <div class="login-box" id="loginBox">
+        <h1>⚔ TITANS AWAIT ⚔</h1>
+        <p>Identify yourself, soldier</p>
+        <div class="error-msg" id="error-msg">All fields required, soldier.</div>
+        <input type="text" id="username" placeholder="Username or Email">
+        <input type="password" id="password" placeholder="Password">
+        <button onclick="doLogin()">ADVANCE — SHINZOU WO SASAGEYO</button>
+        <div class="link">New recruit? <a href="#">Enlist here</a></div>
+    </div>
+
+    <!-- SUCCESS SCREEN -->
+    <div class="success-screen" id="successScreen">
+        <h1>✅ ACCESS GRANTED</h1>
+        <p>Soldier identified. Welcome to the Survey Corps.</p>
+        <p style="font-size: 11px; color: #888; margin-top: 20px;">Shinzou wo sasageyo!</p>
+        <button class="success-btn" onclick="resetLogin()">⚔ BACK TO LOGIN</button>
+    </div>
+</div>
+
+<script>
+    function doLogin() {
+        const u = document.getElementById('username').value.trim();
+        const p = document.getElementById('password').value.trim();
+        const errorMsg = document.getElementById('error-msg');
+        const loginBox = document.getElementById('loginBox');
+        const successScreen = document.getElementById('successScreen');
+
+        // Reset error message
+        errorMsg.style.display = 'none';
+
+        // Validation
+        if (!u || !p) {
+            errorMsg.style.display = 'block';
+            errorMsg.classList.remove('shake');
+            void errorMsg.offsetWidth; // reflow to restart animation
+            errorMsg.classList.add('shake');
+            return;
+        }
+
+        // Success - show success screen
+        loginBox.style.display = 'none';
+        successScreen.style.display = 'block';
+        successScreen.style.animation = 'fadeInUp 0.8s ease-out';
+    }
+
+    function resetLogin() {
+        const loginBox = document.getElementById('loginBox');
+        const successScreen = document.getElementById('successScreen');
+        const username = document.getElementById('username');
+        const password = document.getElementById('password');
+
+        // Hide success, show login
+        successScreen.style.display = 'none';
+        loginBox.style.display = 'block';
+
+        // Clear fields
+        username.value = '';
+        password.value = '';
+    }
+
+    // Enter key support
+    document.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            doLogin();
+        }
+    });
+</script>
+
+</body>
+</html>
